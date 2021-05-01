@@ -38,8 +38,7 @@ def url_convert(url):
 
 file_type = "URL"
 file_name = "test.txt"
-URL = "https://allganize.ai"
-#URL = "http://www.kyobobook.co.kr/bestSellerNew/bestseller.laf"
+URL = "http://www.kyobobook.co.kr/bestSellerNew/bestseller.laf"
 converted_text = ""
 if file_type == "TXT":
     converted_text = text_convert(file_name)
