@@ -1,8 +1,10 @@
 #웹 크롤링을 위한 import
+from konlpy.tag import Okt
+import nltk
 from bs4 import BeautifulSoup
+from collections import Counter
 import requests
 
-#wordcloud import
 import re
 from wordcloud import  WordCloud, ImageColorGenerator
 import matplotlib.pyplot as plt
@@ -11,7 +13,7 @@ import numpy as np
 
 
 def text_convert(txtfile):
-    text = "The Harry Potter series, written by J.K. Rowling, is perhaps the most popular set of novels of the modern era. With seven books and many blockbuster films to its name, the series has amassed about 15 billion dollars in sales. How did this phenomenon become what it is? For those scratching their heads, the reason can be broken down into several areas: Rowling garnered a generous initial contract for her book, separate book covers were created for both teens and adults, midnight releases/promotions/pre-orders made the public more fanatic about the series, and fan blogs were rampant. In fact, these are just a few of the main reasons why the Harry Potter took off the way it did.\n\nThe first book in the series, “Harry Potter and the Philosopher’s Stone,” was rejected 12 times before it was picked up by Bloomsbury—a small publisher in England. At the time, Rowling was living on benefits as a single mother, so receiving this contract was her first step to success. However, getting a book contract does not ensure the success of a book. The story was adored by children and adults alike, and this had much to do with the popularity of the initial book and the series as a whole (Rappaport, Sarah).\n\nIn light of this, her publisher made separate covers for young readers and adults. According to BusinessInsider.com, “Adults love reading the Harry Potter books, but few want to be seen toting around a child’s book. To make it easier for adults, Bloomsbury Publishing, the British publishing house that first bought the rights to Rowling’s books, published a second version of the books with “adult” (i.e., less colorful and more boring) book covers” (Aquino, Judith). This made it easier for a full range of ages to enjoy the series. This is not an easy feat for young adult fiction.\n\nAnother factor that worked like a charm was that when the Harry Potter series became an obvious success, the publisher, and Rowling herself through her own website for the books, conducted midnight releases, special promotions, and pre-ordering to engage readers even more. According to BusinessInsider.com, “Starting with the fourth book, Harry Potter and the Goblet of Fire, crowds of people wearing black robes, ties and round-frame glasses began showing up at bookstores for midnight release parties in 2000. Customers who feared their local bookstore would run out of copies responded by pre-ordering over 700,000 copies prior to the July 8, 2000 release date, according to Gunelius. The seventh and final book in the Harry Potter series became the fastest-selling book in history, reports The New York Times, with more than 11 million copies sold during the first 24 hours in three markets alone” (Aquino, Judith). The fandom around the books created more lucrative opportunities for the series.\n\nAlso, based on fans, blogs were created that were dedicated to the story, details, plot, characters, and much more about the series. In the beginning, Rowling did not have too much in the way of advertising, and the fans did a lot of work for her. According to HubSpot, “The fans took over and created many viral campaigns on her behalf talking about the excitement they had over upcoming releases. Harry Potter is often a trending topic on Twitter, Facebook events and page are abundant and thousands of bloggers create posts on their behalf. These promotions are more genuine because they come from the source, the fans, instead of the person who makes a profit” (Leist, Rachel). This organic advertising propelled the Harry Potter novel series into being the most successful one ever.\n\nNow that Rowling has sold millions of copies of her Harry Potter books and has seen each one adapted into films, merchandise, fan art, and more, we can safely say that this series is a global phenomenon. Through an initial contract, advertising for both teens and adults, special releases and parties, and organic advertising from fans via the internet, Harry Potter and his universe took over as the most successful bestselling book of all time. \n"
+    text = ""
     with open('test.txt', encoding='utf-8') as f:
         text = ''.join(f.readlines())
     return text
@@ -21,33 +23,117 @@ def url_convert(url):
     text = ""
     response = requests.get(url)
     if response.status_code == 200:
-        soup = BeautifulSoup(response.content, 'html.parser')
+        soup = BeautifulSoup(response.text, 'html.parser')
         for item in soup.find_all('div'):
             if item.has_attr('data-i18n'):
-                print(item.find_all(text=True))
+                #print(item.find_all(text=True))
                 text = text + str(item.find_all(text=True))
             elif item.find_all(re.compile("h[1-9]"),text=True):
-                print(item.find_all(text=True))
+                #print(item.find_all(text=True))
                 text = text + str(item.find_all(text=True))
             else:
                 text = text + str(item.find_all(text=True))
         return text
     else:
-        print(response.status_code)
+        pass#print(response.status_code)
 
 
+def url_convert2(url):
+    result = []
+    content = ""
+    response = requests.get(url)
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.text, 'html.parser')
+        script_tag = soup.find_all(['script', 'style', 'header', 'footer', 'form'])
+        for item in script_tag:
+            item.extract()
+
+        content = soup.get_text()
+        print(content)
+        return content
+
+def isEnglishOrKorean(text):
+    kr_text = ""
+    en_text = ""
+    for c in text:
+        if ord('가') <= ord(c) <= ord('힣'):
+            kr_text += c
+        elif ord('a') <= ord(c.lower()) <= ord('z'):
+            en_text += c
+    return kr_text, en_text
+
+def get_noun(text):
+    kr_text, en_text = isEnglishOrKorean(text)
+    print(kr_text)
+    engin = Okt()
+    kr_nouns = [word for word in engin.nouns(kr_text) if len(word) >= 2]
+
+    is_noun = lambda pos: pos[:2] == "NN"
+    tokenized = nltk.word_tokenize(en_text)
+
+    en_nouns = [word for (word, pos) in nltk.pos_tag(tokenized) if is_noun(pos)]
+
+    nouns = kr_nouns + en_nouns
+
+
+
+    count = Counter(nouns)
+    noun_list = count.most_common(100)
+    return noun_list
+
+
+def get_noun2(text):
+
+    engin = Okt()
+    nouns = [word for word in engin.nouns(text) if len(word) >= 2]
+    print(nouns)
+    count = Counter(nouns)
+    noun_list = count.most_common(100)
+    return noun_list
+
+
+def get_noun3(text):
+    #cleaned_text = re.sub('[~!\@#$%^&*()_+=?]<>', '', text)
+    cleaned_text = re.sub('[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]',
+                          '', text)
+
+    #print(cleaned_text)
+    is_noun = lambda pos: pos[:2] == "NN"
+    tokenized = nltk.word_tokenize(cleaned_text)
+
+    nouns = [word for (word, pos) in nltk.pos_tag(tokenized) if is_noun(pos)]
+
+    count = Counter(nouns)
+    noun_list = count.most_common(100)
+    return noun_list
+
+def visualize(list):
+
+    mask = np.array(Image.open('cloud.png'))
+    wc = WordCloud(background_color="white", mask=mask, font_path='font/NanumGothic.ttf').generate_from_frequencies(dict(list))
+    wc.to_file('output.png')
+    plt.imshow(wc, interpolation='bilinear')
+    plt.axis("off")
+    plt.show()
+
+
+nltk.download('punkt')
+nltk.download('averaged_perceptron_tagger')
 file_type = "URL"
 file_name = "test.txt"
+
+URL="https://allganize.ai/"
+URL = "http://www.naver.com"
 URL = "http://www.kyobobook.co.kr/bestSellerNew/bestseller.laf"
 converted_text = ""
 if file_type == "TXT":
     converted_text = text_convert(file_name)
 elif file_type == "URL":
-    converted_text = url_convert(URL)
+    converted_text = url_convert2(URL)
+#cleaned_text = re.sub('[^A-Za-z0-9가-힣]', '', converted_text)
 
-mask = np.array(Image.open('cloud.png'))
-wc = WordCloud(background_color="white",mask=mask).generate(converted_text)
-wc.to_file('output.png')
-plt.imshow(wc, interpolation='bilinear')
-plt.axis("off")
-plt.show()
+noun_list = get_noun3(converted_text)#get_noun(cleaned_text)
+visualize(noun_list)
+
+
+
