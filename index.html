@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo map</title>
+
+    <meta property="og:title" content="사수자리 님의 추억사진"/>
+    <meta property="og:description" content="우도에서 본 바다"/>
+    <meta property="og:image" content="image.jpg"/>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Gamja+Flower&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Gamja Flower', cursive;
+        }
+
+        .mytitle {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+            margin-top: 30px;
+        }
+
+        .btn {
+            width: 300px;
+            height: 40px;
+
+            border: 2px solid #e8344e;
+
+            text-decoration: none;
+            text-align: center;
+            line-height: 40px;
+
+            color: #e8344e;
+            font-weight: bold;
+
+            border-radius: 40px;
+        }
+
+        .btn:hover {
+            background-color: #e8344e;
+            color: white;
+        }
+
+        .box {
+            width: 1000px;
+
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+
+            margin: 40px auto 0 auto;
+        }
+
+        .map {
+            width: 500px;
+            height: 500px;
+
+            margin-right: 30px;
+
+            border-radius: 24px;
+        }
+
+        .story {
+            width: 480px;
+            height: 500px;
+        }
+
+        .img {
+            width: 450px;
+            height: 300px;
+
+            background-image: url('image.jpg');
+            background-position: center;
+            background-size: cover;
+
+            border-radius: 24px;
+        }
+
+        .story > h2 {
+            margin: 20px 0px 0px 0px;
+            color: purple;
+        }
+
+        .story > h3 {
+            margin: 5px 0px 0px 0px;
+            font-size: 16px;
+            color: gray;
+
+            font-weight: normal;
+             
+        }
+
+        .story > p {
+            line-height: 24px;
+        }
+
+        @media screen and (max-width: 640px) {
+            h1 {
+                font-size: 26px;
+            }
+
+            .box {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .map {
+                width: 100%;
+                height: 200px;
+
+                margin: 0;
+            }
+
+            .story {
+                width: 100%;
+                height: auto;
+
+                margin-top: 10px;
+                margin-bottom: 10px;
+            }
+
+            .img {
+                width: 100%;
+                height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="mytitle">
+        <h1>우도</h1>
+        <a class="btn" href="http://spartacodingclub.shop/free/202105/exhibition" target="_blank">모든 수강생들의 추억 보러가기 ></a>
+    </div>
+    <div class="box">
+        <div class="map" id="map"></div>
+        <div class="story">
+            <div class="img"></div>
+            <h2>우도</h2>
+            <h3>제주특별자치 제주시 우도면 우도봉길 105</h3>
+            <p>
+                코로나로 인해 여행이 힘든 요즘
+                오랜만에 끝없이 펼쳐진 수평선을 보고 
+                마음이 탁 트인 기분을 느꼈다.
+            </p>
+        </div>
+    </div>
+    <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=535068688f1a8bca1c21a9445ede0a89"></script>
+    <script>
+        var markerPosition = new kakao.maps.LatLng(33.49271154917005, 126.96630661503583)
+        var mapContainer = document.getElementById('map'), // 지도를 표시할 div  
+            mapOption = { 
+                center: markerPosition, // 지도의 중심좌표
+                level: 3 // 지도의 확대 레벨
+            };
+
+        var map = new kakao.maps.Map(mapContainer, mapOption); // 지도를 생성합니다
+
+        var imageSrc = "https://s3.ap-northeast-2.amazonaws.com/materials.spartacodingclub.kr/2021_05_free_parents/sparta-marker.png"; 
+        var imageSize = new kakao.maps.Size(65, 86); 
+        var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize); 
+        
+        var marker = new kakao.maps.Marker({
+            map: map,
+            position: markerPosition,
+            image : markerImage
+        });
+
+    </script>
+</body>
+</html>
